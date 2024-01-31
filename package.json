@@ -1,7 +1,7 @@
 {
   "name": "electron-pomodoro-app",
   "productName": "pomodoro",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple pomodoro application made with electron JS.",
   "main": ".webpack/main",
   "scripts": {
