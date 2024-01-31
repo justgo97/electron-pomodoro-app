@@ -241,6 +241,9 @@ const TimerBody = () => {
           dispatch(timerActions.setTimer(settings.breakTime));
         }
 
+        if (Notification.permission === "granted") {
+          new Notification("Take a break!");
+        }
         startBreakInterval();
       } else if (refBreakInterval.current) {
         //
@@ -255,9 +258,17 @@ const TimerBody = () => {
           dispatch(timerActions.setInLongBreak(false));
           document.body.style.backgroundColor = "var(--pomodoro)";
           refCurrentMode.current = "pomodoro";
+          if (Notification.permission === "granted") {
+            new Notification(
+              "Your long break is complete, For another round start the timer again!"
+            );
+          }
         } else {
           dispatch(timerActions.setInBreak(false));
           dispatch(timerActions.setTimer(settings.seesionTime));
+          if (Notification.permission === "granted") {
+            new Notification("Get back to work!");
+          }
           startSessionInterval();
         }
       }

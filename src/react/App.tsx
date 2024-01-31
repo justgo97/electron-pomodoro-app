@@ -34,6 +34,25 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    //
+    if (
+      Notification.permission !== "granted" &&
+      Notification.permission !== "denied"
+    ) {
+      // ask the user for permission
+      Notification.requestPermission().then(function (permission) {
+        // If permission is granted
+        if (permission === "granted") {
+          // Create a new notification
+          new Notification(
+            "Awesome! You will be notified at the start of each session."
+          );
+        }
+      });
+    }
+  }, []);
+
   return (
     <div className="App">
       <div className="timer">
