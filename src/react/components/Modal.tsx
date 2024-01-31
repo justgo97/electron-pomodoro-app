@@ -74,7 +74,6 @@ const Modal = ({ handleClose, show }: ModalProps) => {
         <div className="modal-header">
           <div></div>
           <h2 className="modal-header-title">Pomodoro Settings</h2>
-
           <span className="close" onClick={onClickClose}>
             &times;
           </span>
@@ -116,8 +115,11 @@ const Modal = ({ handleClose, show }: ModalProps) => {
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={onClickSave}>Save</button>
-          <button onClick={onClickClose}>Cancel</button>
+          <div className="modal-footer-buttons">
+            <button onClick={onClickSave}>Save</button>
+            <button onClick={onClickClose}>Cancel</button>
+          </div>
+          <div className="modal-footer-version">App Version {APP_VERSION}</div>
         </div>
       </div>
     </div>
