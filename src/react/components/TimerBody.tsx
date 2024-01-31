@@ -17,8 +17,8 @@ const TimerBody = () => {
   useEffect(() => {
     if (timer.isStarted) return;
 
-    dispatch(timerActions.setTimer(settings.seesionTime));
-  }, [settings.seesionTime, timer.isStarted, dispatch]);
+    dispatch(timerActions.setTimer(settings.sessionTime));
+  }, [settings.sessionTime, timer.isStarted, dispatch]);
 
   useEffect(() => {
     if (timer.isStarted) return;
@@ -86,7 +86,7 @@ const TimerBody = () => {
         dispatch(timerActions.setSessions(settings.sessionsCount));
 
         if (refCurrentMode.current === "pomodoro") {
-          dispatch(timerActions.setTimer(settings.seesionTime));
+          dispatch(timerActions.setTimer(settings.sessionTime));
         } else if (refCurrentMode.current === "shortBreak") {
           dispatch(timerActions.setTimer(settings.breakTime));
         } else {
@@ -106,7 +106,7 @@ const TimerBody = () => {
 
   const onClickReset = () => {
     // Reset the timer
-    dispatch(timerActions.setTimer(settings.seesionTime));
+    dispatch(timerActions.setTimer(settings.sessionTime));
     dispatch(timerActions.setSessions(settings.sessionsCount));
 
     if (refCurrentMode.current !== "pomodoro") {
@@ -142,7 +142,7 @@ const TimerBody = () => {
 
     AudioManager.playAudio("click");
 
-    dispatch(timerActions.setTimer(settings.seesionTime));
+    dispatch(timerActions.setTimer(settings.sessionTime));
 
     if (refBreakInterval.current) {
       clearInterval(refBreakInterval.current);
@@ -265,7 +265,7 @@ const TimerBody = () => {
           }
         } else {
           dispatch(timerActions.setInBreak(false));
-          dispatch(timerActions.setTimer(settings.seesionTime));
+          dispatch(timerActions.setTimer(settings.sessionTime));
           if (Notification.permission === "granted") {
             new Notification("Get back to work!");
           }

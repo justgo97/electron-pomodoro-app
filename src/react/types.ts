@@ -1,5 +1,5 @@
 export interface ISettings {
-  seesionTime: number;
+  sessionTime: number;
   breakTime: number;
   longBreakTime: number;
   sessionsCount: number;

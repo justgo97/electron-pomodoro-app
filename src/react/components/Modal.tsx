@@ -17,7 +17,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
     settings.sessionsCount
   );
   const [stateSessionTime, setStateSessionTime] = useState(
-    settings.seesionTime / 60
+    settings.sessionTime / 60
   );
   const [stateBreakTime, setStateBreakTime] = useState(settings.breakTime / 60);
 
@@ -58,7 +58,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
 
   const onClickClose = () => {
     setStateSessionsCount(settings.sessionsCount);
-    setStateSessionTime(settings.seesionTime / 60);
+    setStateSessionTime(settings.sessionTime / 60);
     setStateBreakTime(settings.breakTime / 60);
     setStateLongBreakTime(settings.longBreakTime / 60);
     handleClose();

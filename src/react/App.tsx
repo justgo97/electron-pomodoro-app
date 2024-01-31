@@ -30,7 +30,7 @@ const App = () => {
   useEffect(() => {
     //
     dispatch(timerActions.setSessions(settings.sessionsCount));
-    dispatch(timerActions.setTimer(settings.seesionTime));
+    dispatch(timerActions.setTimer(settings.sessionTime));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
