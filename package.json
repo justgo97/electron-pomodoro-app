@@ -1,7 +1,7 @@
 {
   "name": "electron-pomodoro-app",
   "productName": "electron-pomodoro-app",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple pomodoro application",
   "main": ".webpack/main",
   "scripts": {
