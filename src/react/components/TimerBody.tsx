@@ -13,11 +13,14 @@ const TimerBody = () => {
   const refSessionInterval = useRef<NodeJS.Timeout>(null);
   const refBreakInterval = useRef<NodeJS.Timeout>(null);
   const refCurrentMode = useRef<string>("pomodoro");
+  const refStartTime = useRef(0);
+  const refDuration = useRef(0);
 
   useEffect(() => {
     if (timer.isStarted) return;
 
     dispatch(timerActions.setTimer(settings.sessionTime));
+    refDuration.current = settings.sessionTime;
   }, [settings.sessionTime, timer.isStarted, dispatch]);
 
   useEffect(() => {
@@ -38,12 +41,20 @@ const TimerBody = () => {
 
     // There is an ongoing timer running
     if (refSessionInterval.current) {
-      return;
+      clearInterval(refSessionInterval.current);
     }
 
+    refStartTime.current = Date.now();
     // Create an interval that tics every 1 second
     refSessionInterval.current = setInterval(() => {
-      dispatch(timerActions.decrementTimer());
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - refStartTime.current;
+
+      dispatch(
+        timerActions.setTimer(
+          Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
+        )
+      );
     }, 1000);
   };
 
@@ -62,8 +73,16 @@ const TimerBody = () => {
       document.body.style.backgroundColor = "var(--shortBreak)";
     }
 
+    refStartTime.current = Date.now();
     refBreakInterval.current = setInterval(() => {
-      dispatch(timerActions.decrementTimer());
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - refStartTime.current;
+
+      dispatch(
+        timerActions.setTimer(
+          Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
+        )
+      );
     }, 1000);
   }
 
@@ -81,16 +100,20 @@ const TimerBody = () => {
 
       AudioManager.playAudio("pause");
       dispatch(timerActions.setRunning(false));
+      refDuration.current = timer.secondsLeft;
     } else {
       if (!timer.isStarted) {
         dispatch(timerActions.setSessions(settings.sessionsCount));
 
         if (refCurrentMode.current === "pomodoro") {
           dispatch(timerActions.setTimer(settings.sessionTime));
+          refDuration.current = settings.sessionTime;
         } else if (refCurrentMode.current === "shortBreak") {
           dispatch(timerActions.setTimer(settings.breakTime));
+          refDuration.current = settings.breakTime;
         } else {
           dispatch(timerActions.setTimer(settings.longBreakTime));
+          refDuration.current = settings.longBreakTime;
         }
       }
 
@@ -108,6 +131,7 @@ const TimerBody = () => {
     // Reset the timer
     dispatch(timerActions.setTimer(settings.sessionTime));
     dispatch(timerActions.setSessions(settings.sessionsCount));
+    refDuration.current = settings.sessionTime;
 
     if (refCurrentMode.current !== "pomodoro") {
       // we are in a break and running
@@ -143,6 +167,7 @@ const TimerBody = () => {
     AudioManager.playAudio("click");
 
     dispatch(timerActions.setTimer(settings.sessionTime));
+    refDuration.current = settings.sessionTime;
 
     if (refBreakInterval.current) {
       clearInterval(refBreakInterval.current);
@@ -183,6 +208,7 @@ const TimerBody = () => {
     dispatch(timerActions.setInLongBreak(false));
     dispatch(timerActions.setInSession(false));
     dispatch(timerActions.setTimer(settings.breakTime));
+    refDuration.current = settings.breakTime;
     if (timer.isRunning) {
       startBreakInterval();
     }
@@ -212,6 +238,7 @@ const TimerBody = () => {
     dispatch(timerActions.setInLongBreak(true));
     dispatch(timerActions.setInSession(false));
     dispatch(timerActions.setTimer(settings.longBreakTime));
+    refDuration.current = settings.longBreakTime;
     if (timer.isRunning) {
       startBreakInterval();
     }
@@ -235,10 +262,12 @@ const TimerBody = () => {
           dispatch(timerActions.setInLongBreak(true));
           refCurrentMode.current = "longBreak";
           dispatch(timerActions.setTimer(settings.longBreakTime));
+          refDuration.current = settings.longBreakTime;
         } else {
           dispatch(timerActions.setInBreak(true));
           refCurrentMode.current = "shortBreak";
           dispatch(timerActions.setTimer(settings.breakTime));
+          refDuration.current = settings.breakTime;
         }
 
         if (Notification.permission === "granted") {
@@ -266,6 +295,7 @@ const TimerBody = () => {
         } else {
           dispatch(timerActions.setInBreak(false));
           dispatch(timerActions.setTimer(settings.sessionTime));
+          refDuration.current = settings.sessionTime;
           if (Notification.permission === "granted") {
             new Notification("Get back to work!");
           }
