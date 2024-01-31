@@ -1,7 +1,15 @@
 {
-  "name": "electron-pomodoro-app",
+  "name": "pomodoro",
   "productName": "pomodoro",
   "version": "0.0.4",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justgo97/electron-pomodoro-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/justgo97/electron-pomodoro-app/issues"
+  },
+  "homepage": "https://github.com/justgo97/electron-pomodoro-app",
   "description": "A simple pomodoro application made with electron JS.",
   "main": ".webpack/main",
   "scripts": {
