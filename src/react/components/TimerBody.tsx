@@ -57,10 +57,8 @@ const TimerBody = () => {
     }
 
     if (refCurrentMode.current === "longBreak") {
-      dispatch(timerActions.setTimer(settings.longBreakTime));
       document.body.style.backgroundColor = "var(--longBreak)";
     } else {
-      dispatch(timerActions.setTimer(settings.breakTime));
       document.body.style.backgroundColor = "var(--shortBreak)";
     }
 
@@ -84,8 +82,18 @@ const TimerBody = () => {
       AudioManager.playAudio("pause");
       dispatch(timerActions.setRunning(false));
     } else {
-      dispatch(timerActions.setTimer(settings.seesionTime));
-      dispatch(timerActions.setSessions(settings.sessionsCount));
+      if (!timer.isStarted) {
+        dispatch(timerActions.setSessions(settings.sessionsCount));
+
+        if (refCurrentMode.current === "pomodoro") {
+          dispatch(timerActions.setTimer(settings.seesionTime));
+        } else if (refCurrentMode.current === "shortBreak") {
+          dispatch(timerActions.setTimer(settings.breakTime));
+        } else {
+          dispatch(timerActions.setTimer(settings.longBreakTime));
+        }
+      }
+
       AudioManager.playAudio("click");
 
       if (timer.isInBreak || timer.isInLongBreak) {
@@ -226,9 +234,11 @@ const TimerBody = () => {
           //
           dispatch(timerActions.setInLongBreak(true));
           refCurrentMode.current = "longBreak";
+          dispatch(timerActions.setTimer(settings.longBreakTime));
         } else {
           dispatch(timerActions.setInBreak(true));
           refCurrentMode.current = "shortBreak";
+          dispatch(timerActions.setTimer(settings.breakTime));
         }
 
         startBreakInterval();
