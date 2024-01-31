@@ -15,10 +15,16 @@ const config: ForgeConfig = {
   packagerConfig: {
     executableName: "pomodoro",
     asar: false,
+    icon: "./src/pomodoro.ico",
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({ name: "pomodoro" }),
+    new MakerSquirrel({
+      name: "pomodoro",
+      setupIcon: __dirname + "/src/pomodoro.ico",
+      iconUrl:
+        "https://raw.githubusercontent.com/justgo97/electron-pomodoro-app/master/src/pomodoro.ico",
+    }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),
