@@ -4,6 +4,8 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 
+import { PublisherGithub } from "@electron-forge/publisher-github";
+
 import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 
 import { mainConfig } from "./webpack.main.config";
@@ -11,11 +13,12 @@ import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
   packagerConfig: {
+    executableName: "pomodoro",
     asar: false,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({ name: "pomodoro" }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),
@@ -36,6 +39,13 @@ const config: ForgeConfig = {
           },
         ],
       },
+    }),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: { owner: "justgo97", name: "electron-pomodoro-app" },
+      prerelease: false,
+      draft: true,
     }),
   ],
 };
