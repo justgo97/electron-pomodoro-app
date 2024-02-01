@@ -16,6 +16,7 @@ const config: ForgeConfig = {
     executableName: "pomodoro",
     icon: "./src/pomodoro.ico",
     asar: false,
+    extraResource: ["./src/pomodoro.ico"],
   },
   rebuildConfig: {},
   makers: [
