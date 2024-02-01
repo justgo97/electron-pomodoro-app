@@ -14,8 +14,8 @@ import { rendererConfig } from "./webpack.renderer.config";
 const config: ForgeConfig = {
   packagerConfig: {
     executableName: "pomodoro",
-    asar: false,
     icon: "./src/pomodoro.ico",
+    asar: false,
   },
   rebuildConfig: {},
   makers: [

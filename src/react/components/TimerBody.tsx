@@ -55,7 +55,7 @@ const TimerBody = () => {
           Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
         )
       );
-    }, 1000);
+    }, 900);
   };
 
   function startBreakInterval() {
@@ -83,7 +83,7 @@ const TimerBody = () => {
           Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
         )
       );
-    }, 1000);
+    }, 900);
   }
 
   const onClickToggle = () => {
