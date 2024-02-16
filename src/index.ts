@@ -60,8 +60,8 @@ const createTray = () => {
     ? path.join(__dirname, "..", "..", "..", "pomodoro.ico")
     : path.join(__dirname, "..", "..", "src", "pomodoro.ico");
 
-  const icon = nativeImage.createFromPath(path.join(iconPath));
-  console.log(path.join(iconPath));
+  const icon = nativeImage.createFromPath(iconPath);
+
   tray = new Tray(icon);
 
   tray.setContextMenu(
