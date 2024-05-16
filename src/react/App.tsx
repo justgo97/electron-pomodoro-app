@@ -10,7 +10,7 @@ import "@/styles/App.scss";
 
 import soundClick from "@/resources/button_click.mp3";
 import soundRing from "@/resources/bell_ring.mp3";
-import soundPause from "@/resources/timer_pause.mp3";
+import soundPause from "@/resources/timer_pause2.mp3";
 import { timerActions } from "./store/timerReducer";
 
 const App = () => {
