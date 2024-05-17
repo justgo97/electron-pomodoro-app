@@ -4,6 +4,8 @@ import { useAppSelector, useAppDispatch } from "@/store";
 import useAudio from "@/context/useAudio";
 import { timerActions } from "@/store/timerReducer";
 
+import { getTime } from "@/util/time";
+
 const TimerBody = () => {
   const AudioManager = useAudio();
   const settings = useAppSelector((state) => state.settings);
@@ -30,11 +32,7 @@ const TimerBody = () => {
   }, [settings.sessionsCount, timer.isStarted, dispatch]);
 
   const startSessionInterval = () => {
-    dispatch(timerActions.setStarted(true));
-    dispatch(timerActions.setRunning(true));
-    dispatch(timerActions.setInSession(true));
-    dispatch(timerActions.setInBreak(false));
-    dispatch(timerActions.setInLongBreak(false));
+    dispatch(timerActions.startSession());
 
     document.body.style.backgroundColor = "var(--pomodoro)";
     refCurrentMode.current = "pomodoro";
@@ -59,9 +57,7 @@ const TimerBody = () => {
   };
 
   function startBreakInterval() {
-    dispatch(timerActions.setStarted(true));
-    dispatch(timerActions.setRunning(true));
-    dispatch(timerActions.setInSession(false));
+    dispatch(timerActions.startBreak());
 
     if (refBreakInterval.current) {
       return;
@@ -311,27 +307,27 @@ const TimerBody = () => {
       <div className="timer-status">
         <button
           onClick={onClickPomodoro}
-          className={"timer-status-button ".concat(
+          className={`timer-status-button${
             !timer.isInBreak && !timer.isInLongBreak
-              ? "timer-status-button-active"
+              ? " timer-status-button-active"
               : ""
-          )}
+          }`}
         >
           Pomodoro
         </button>
         <button
           onClick={onClickBreak}
-          className={"timer-status-button ".concat(
-            timer.isInBreak ? "timer-status-button-active" : ""
-          )}
+          className={`timer-status-button${
+            timer.isInBreak ? " timer-status-button-active" : ""
+          }`}
         >
           Short break
         </button>
         <button
           onClick={onClickLongBreak}
-          className={"timer-status-button ".concat(
-            timer.isInLongBreak ? "timer-status-button-active" : ""
-          )}
+          className={`timer-status-button${
+            timer.isInLongBreak ? " timer-status-button-active" : ""
+          }`}
         >
           Long break
         </button>
@@ -356,18 +352,12 @@ interface TimerDisplayProps {
 }
 
 const TimerDisplay = ({ time, isRunning }: TimerDisplayProps) => {
-  const getTime = (secondsLeft: number) => {
-    const minutes = Math.floor(secondsLeft / 60);
-    const seconds = Math.floor(secondsLeft % 60);
-    return ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
-  };
-
   return (
     <div className="timer-time">
       <p
-        className={`timer-time-text`.concat(
+        className={`timer-time-text${
           !isRunning ? " timer-time-text-disabled" : ""
-        )}
+        }`}
       >
         {getTime(time)}
       </p>

@@ -53,6 +53,20 @@ export const timerSlice = createSlice({
     decrementSessions: (state) => {
       state.sessionsLeft -= 1;
     },
+    startSession: (state) => {
+      //
+      state.isStarted = true;
+      state.isRunning = true;
+      state.isInSession = true;
+      state.isInBreak = false;
+      state.isInLongBreak = false;
+    },
+    startBreak: (state) => {
+      //
+      state.isStarted = true;
+      state.isRunning = true;
+      state.isInSession = false;
+    },
   },
 });
 
