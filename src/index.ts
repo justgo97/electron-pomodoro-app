@@ -1,5 +1,5 @@
 import path from "path";
-import { app, BrowserWindow, Menu, Tray, nativeImage } from "electron";
+import { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain } from "electron";
 
 import { updateElectronApp } from "update-electron-app";
 updateElectronApp();
@@ -52,6 +52,13 @@ const createWindow = (): void => {
       tray.destroy();
       tray = null;
     }
+  });
+
+  ipcMain.on("start-break", () => {
+    //
+    mainWindow.maximize();
+    mainWindow.show();
+    mainWindow.moveTop();
   });
 };
 

@@ -69,6 +69,8 @@ const TimerBody = () => {
       document.body.style.backgroundColor = "var(--shortBreak)";
     }
 
+    window.electronAPI.startBreak();
+
     refStartTime.current = Date.now();
     refBreakInterval.current = setInterval(() => {
       const currentTime = Date.now();
