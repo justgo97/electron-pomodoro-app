@@ -1,6 +1,10 @@
 import { useState } from "react";
+import useAudio from "@/context/useAudio";
 import { useAppDispatch, useAppSelector } from "@/store/index";
 import { settingsActions } from "@/store/settingsReducer";
+
+import { Switch } from "@blueprintjs/core";
+
 import "@/styles/modal.scss";
 
 interface ModalProps {
@@ -12,6 +16,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
   //
   const settings = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+  const AudioManager = useAudio();
 
   const [stateSessionsCount, setStateSessionsCount] = useState(
     settings.sessionsCount
@@ -23,6 +28,12 @@ const Modal = ({ handleClose, show }: ModalProps) => {
 
   const [stateLongBreakTime, setStateLongBreakTime] = useState(
     settings.longBreakTime / 60
+  );
+
+  const [stateSounds, setStateSounds] = useState(!AudioManager.silentMode);
+
+  const [stateNotifications, setStateNotifications] = useState(
+    settings.notifications
   );
 
   const onChangeSessionsCount = (
@@ -47,12 +58,29 @@ const Modal = ({ handleClose, show }: ModalProps) => {
     setStateLongBreakTime(Number(event.currentTarget.value));
   };
 
+  const onChangeSound = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStateSounds(event.target.checked);
+  };
+
+  const onChangeNotifications = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setStateNotifications(event.target.checked);
+  };
+
   const onClickSave = () => {
     //
     dispatch(settingsActions.setSessionsCount(stateSessionsCount));
     dispatch(settingsActions.setSession(stateSessionTime * 60));
     dispatch(settingsActions.setBreak(stateBreakTime * 60));
     dispatch(settingsActions.setLongBreak(stateLongBreakTime * 60));
+
+    AudioManager.setSilentMode(!stateSounds);
+    localStorage.setItem("soundEffects", stateSounds ? "on" : "off");
+
+    dispatch(settingsActions.setNotifications(stateNotifications));
+    localStorage.setItem("notifications", stateNotifications ? "on" : "off");
+
     handleClose();
   };
 
@@ -61,6 +89,9 @@ const Modal = ({ handleClose, show }: ModalProps) => {
     setStateSessionTime(settings.sessionTime / 60);
     setStateBreakTime(settings.breakTime / 60);
     setStateLongBreakTime(settings.longBreakTime / 60);
+    setStateSounds(!AudioManager.silentMode);
+    setStateNotifications(settings.notifications);
+
     handleClose();
   };
 
@@ -80,7 +111,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
         </div>
         <div className="modal-body">
           <div className="modal-body-fields">
-            <div>
+            <div className="modal-body-fields-item">
               <label>Sessions count:</label>
               <input
                 type="number"
@@ -88,7 +119,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
                 onChange={onChangeSessionsCount}
               />
             </div>
-            <div>
+            <div className="modal-body-fields-item">
               <label>Session time:</label>
               <input
                 type="number"
@@ -96,7 +127,7 @@ const Modal = ({ handleClose, show }: ModalProps) => {
                 onChange={onChangeSession}
               />
             </div>
-            <div>
+            <div className="modal-body-fields-item">
               <label>Short break time:</label>
               <input
                 type="number"
@@ -104,12 +135,30 @@ const Modal = ({ handleClose, show }: ModalProps) => {
                 onChange={onChangeBreak}
               />
             </div>
-            <div>
+            <div className="modal-body-fields-item">
               <label>Long break time:</label>
               <input
                 type="number"
                 value={stateLongBreakTime}
                 onChange={onChangeLongBreak}
+              />
+            </div>
+            <div>
+              <label>Sound effects:</label>
+              <Switch
+                innerLabelChecked="on"
+                innerLabel="off"
+                checked={stateSounds}
+                onChange={onChangeSound}
+              />
+            </div>
+            <div>
+              <label>Notifications:</label>
+              <Switch
+                innerLabelChecked="on"
+                innerLabel="off"
+                checked={stateNotifications}
+                onChange={onChangeNotifications}
               />
             </div>
           </div>

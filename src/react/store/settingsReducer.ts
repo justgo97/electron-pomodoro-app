@@ -1,11 +1,29 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ISettings } from "@/types";
+
+interface ISettings {
+  sessionTime: number;
+  breakTime: number;
+  longBreakTime: number;
+  sessionsCount: number;
+  notifications: boolean;
+}
+
+const getNotificationSetting = () => {
+  const localSetting = localStorage.getItem("notifications");
+
+  if (localSetting) {
+    return localStorage.getItem("notifications") === "on";
+  }
+
+  return true;
+};
 
 const initialState: ISettings = {
   sessionTime: 25 * 60,
   breakTime: 5 * 60,
   longBreakTime: 15 * 60,
   sessionsCount: 4,
+  notifications: getNotificationSetting(),
 };
 
 export const settingsSlice = createSlice({
@@ -23,6 +41,9 @@ export const settingsSlice = createSlice({
     },
     setSessionsCount: (state, action: PayloadAction<number>) => {
       state.sessionsCount = action.payload;
+    },
+    setNotifications: (state, action: PayloadAction<boolean>) => {
+      state.notifications = action.payload;
     },
   },
 });

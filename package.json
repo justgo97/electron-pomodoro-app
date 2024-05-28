@@ -52,6 +52,7 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
+    "@blueprintjs/core": "^5.10.3",
     "@reduxjs/toolkit": "^2.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",

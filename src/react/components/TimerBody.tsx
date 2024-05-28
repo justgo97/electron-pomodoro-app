@@ -268,7 +268,7 @@ const TimerBody = () => {
           refDuration.current = settings.breakTime;
         }
 
-        if (Notification.permission === "granted") {
+        if (Notification.permission === "granted" && settings.notifications) {
           new Notification("Take a break!");
         }
         startBreakInterval();
@@ -285,7 +285,7 @@ const TimerBody = () => {
           dispatch(timerActions.setInLongBreak(false));
           document.body.style.backgroundColor = "var(--pomodoro)";
           refCurrentMode.current = "pomodoro";
-          if (Notification.permission === "granted") {
+          if (Notification.permission === "granted" && settings.notifications) {
             new Notification(
               "Your long break is complete, For another round start the timer again!"
             );
@@ -294,7 +294,7 @@ const TimerBody = () => {
           dispatch(timerActions.setInBreak(false));
           dispatch(timerActions.setTimer(settings.sessionTime));
           refDuration.current = settings.sessionTime;
-          if (Notification.permission === "granted") {
+          if (Notification.permission === "granted" && settings.notifications) {
             new Notification("Get back to work!");
           }
           startSessionInterval();

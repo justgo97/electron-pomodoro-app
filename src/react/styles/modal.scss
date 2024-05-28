@@ -27,7 +27,7 @@
     animation-duration: 0.4s;
 
     .modal-header {
-      background-color: #6e756e;
+      background-color: #b65e5e;
       color: white;
       display: flex;
       justify-content: space-around;
@@ -57,12 +57,16 @@
 
     .modal-body {
       padding: 1rem;
-      background-color: #dedede;
+      background-color: #ffffff;
       max-height: 50vh;
 
       &-fields {
         display: flex;
         flex-direction: column;
+
+        &-item {
+          padding-bottom: 10px;
+        }
 
         label {
           display: inline-block;
@@ -75,7 +79,7 @@
       max-height: 20vh;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
-      background-color: #6e756e;
+      background-color: #b65e5e;
       color: white;
       display: flex;
       flex-direction: column;
@@ -88,7 +92,7 @@
       }
 
       &-version {
-        color: rgb(198, 194, 194);
+        color: rgb(91, 81, 81);
       }
     }
   }

@@ -2,8 +2,20 @@ interface AudioObject {
   [key: string]: HTMLAudioElement;
 }
 
+const getSilentSetting = () => {
+  //
+  const localSetting = localStorage.getItem("soundEffects");
+
+  if (localSetting) {
+    return localSetting === "off";
+  } else {
+    return false;
+  }
+};
+
 class AudioManagerClass {
   audioElements: AudioObject;
+  silentMode = getSilentSetting();
 
   constructor() {
     this.audioElements = {};
@@ -17,6 +29,8 @@ class AudioManagerClass {
   }
 
   playAudio(key: string) {
+    if (this.silentMode) return;
+
     const audio = this.audioElements[key];
     if (audio) {
       audio.play();
@@ -28,6 +42,10 @@ class AudioManagerClass {
     if (audio) {
       audio.pause();
     }
+  }
+
+  setSilentMode(state: boolean) {
+    this.silentMode = state;
   }
 }
 
