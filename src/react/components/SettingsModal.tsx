@@ -3,7 +3,7 @@ import useAudio from "@/context/useAudio";
 import { useAppDispatch, useAppSelector } from "@/store/index";
 import { settingsActions } from "@/store/settingsReducer";
 
-import { Switch } from "@blueprintjs/core";
+import { Button, Intent, Switch } from "@blueprintjs/core";
 
 import "@/styles/modal.scss";
 
@@ -35,6 +35,8 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
   const [stateNotifications, setStateNotifications] = useState(
     settings.notifications
   );
+
+  const [statePopupBreak, setStatePopupBreak] = useState(settings.popupBreak);
 
   const onChangeSessionsCount = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -72,6 +74,10 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
     setStateNotifications(event.target.checked);
   };
 
+  const onChangePopupBreak = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStatePopupBreak(event.target.checked);
+  };
+
   const onClickSave = () => {
     //
     dispatch(settingsActions.setSessionsCount(stateSessionsCount));
@@ -92,7 +98,20 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
     dispatch(settingsActions.setNotifications(stateNotifications));
     localStorage.setItem("notifications", stateNotifications ? "on" : "off");
 
+    dispatch(settingsActions.setPopupBreak(statePopupBreak));
+    localStorage.setItem("popupBreak", statePopupBreak ? "on" : "off");
+
     handleClose();
+  };
+
+  const onClickReset = () => {
+    setStateSessionsCount(4);
+    setStateSessionTime(25);
+    setStateBreakTime(5);
+    setStateLongBreakTime(15);
+    setStateSounds(true);
+    setStatePopupBreak(true);
+    setStateNotifications(true);
   };
 
   const onClickClose = () => {
@@ -102,6 +121,7 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
     setStateLongBreakTime(settings.longBreakTime / 60);
     setStateSounds(!AudioManager.silentMode);
     setStateNotifications(settings.notifications);
+    setStatePopupBreak(settings.popupBreak);
 
     handleClose();
   };
@@ -172,12 +192,26 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
                 onChange={onChangeNotifications}
               />
             </div>
+            <div>
+              <label>Popup break:</label>
+              <Switch
+                innerLabelChecked="on"
+                innerLabel="off"
+                checked={statePopupBreak}
+                onChange={onChangePopupBreak}
+              />
+            </div>
           </div>
         </div>
         <div className="modal-footer">
           <div className="modal-footer-buttons">
-            <button onClick={onClickSave}>Save</button>
-            <button onClick={onClickClose}>Cancel</button>
+            <Button text="Save" onClick={onClickSave} intent={Intent.SUCCESS} />
+            <Button
+              text="Reset"
+              onClick={onClickReset}
+              intent={Intent.WARNING}
+            />
+            <Button text="Cancel" onClick={onClickClose} />
           </div>
           <div className="modal-footer-version">App Version {APP_VERSION}</div>
         </div>

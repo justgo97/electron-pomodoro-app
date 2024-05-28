@@ -6,13 +6,14 @@ interface ISettings {
   longBreakTime: number;
   sessionsCount: number;
   notifications: boolean;
+  popupBreak: boolean;
 }
 
 const getNotificationSetting = () => {
   const localSetting = localStorage.getItem("notifications");
 
   if (localSetting) {
-    return localStorage.getItem("notifications") === "on";
+    return localSetting === "on";
   }
 
   return true;
@@ -74,12 +75,23 @@ const getSessionsCountSetting = () => {
   return 4;
 };
 
+const getPopupBreakSetting = () => {
+  const localSetting = localStorage.getItem("popupBreak");
+
+  if (localSetting) {
+    return localSetting === "on";
+  }
+
+  return true;
+};
+
 const initialState: ISettings = {
   sessionTime: getSessionTimeSetting() * 60,
   breakTime: getBreakTimeSetting() * 60,
   longBreakTime: getLongBreakTimeSetting() * 60,
   sessionsCount: getSessionsCountSetting(),
   notifications: getNotificationSetting(),
+  popupBreak: getPopupBreakSetting(),
 };
 
 export const settingsSlice = createSlice({
@@ -100,6 +112,9 @@ export const settingsSlice = createSlice({
     },
     setNotifications: (state, action: PayloadAction<boolean>) => {
       state.notifications = action.payload;
+    },
+    setPopupBreak: (state, action: PayloadAction<boolean>) => {
+      state.popupBreak = action.payload;
     },
   },
 });
