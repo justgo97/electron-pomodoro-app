@@ -40,7 +40,11 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     //
-    setStateSessionsCount(Number(event.currentTarget.value));
+    let sessionsCount = Number(event.currentTarget.value);
+    if (sessionsCount < 1) {
+      sessionsCount = 1;
+    }
+    setStateSessionsCount(sessionsCount);
   };
 
   const onChangeSession = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,9 +75,16 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
   const onClickSave = () => {
     //
     dispatch(settingsActions.setSessionsCount(stateSessionsCount));
+    localStorage.setItem("sessionsCount", String(stateSessionsCount));
+
     dispatch(settingsActions.setSession(stateSessionTime * 60));
+    localStorage.setItem("sessionTime", String(stateSessionTime));
+
     dispatch(settingsActions.setBreak(stateBreakTime * 60));
+    localStorage.setItem("breakTime", String(stateBreakTime));
+
     dispatch(settingsActions.setLongBreak(stateLongBreakTime * 60));
+    localStorage.setItem("longBreakTime", String(stateLongBreakTime));
 
     AudioManager.setSilentMode(!stateSounds);
     localStorage.setItem("soundEffects", stateSounds ? "on" : "off");

@@ -18,11 +18,67 @@ const getNotificationSetting = () => {
   return true;
 };
 
+const getSessionTimeSetting = () => {
+  const localSetting = localStorage.getItem("sessionTime");
+
+  if (localSetting) {
+    const sessionTime = Number(localSetting);
+
+    if (!isNaN(sessionTime)) {
+      return sessionTime;
+    }
+  }
+
+  return 25;
+};
+
+const getBreakTimeSetting = () => {
+  const localSetting = localStorage.getItem("breakTime");
+
+  if (localSetting) {
+    const breakTime = Number(localSetting);
+
+    if (!isNaN(breakTime)) {
+      return breakTime;
+    }
+  }
+
+  return 5;
+};
+
+const getLongBreakTimeSetting = () => {
+  const localSetting = localStorage.getItem("longBreakTime");
+
+  if (localSetting) {
+    const breakTime = Number(localSetting);
+
+    if (!isNaN(breakTime)) {
+      return breakTime;
+    }
+  }
+
+  return 15;
+};
+
+const getSessionsCountSetting = () => {
+  const localSetting = localStorage.getItem("sessionsCount");
+
+  if (localSetting) {
+    const sessionsCount = Number(localSetting);
+
+    if (!isNaN(sessionsCount)) {
+      return sessionsCount;
+    }
+  }
+
+  return 4;
+};
+
 const initialState: ISettings = {
-  sessionTime: 25 * 60,
-  breakTime: 5 * 60,
-  longBreakTime: 15 * 60,
-  sessionsCount: 4,
+  sessionTime: getSessionTimeSetting() * 60,
+  breakTime: getBreakTimeSetting() * 60,
+  longBreakTime: getLongBreakTimeSetting() * 60,
+  sessionsCount: getSessionsCountSetting(),
   notifications: getNotificationSetting(),
 };
 
