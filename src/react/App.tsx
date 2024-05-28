@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/index";
 import useAudio from "@/context/useAudio";
 
 import TimerBody from "@/components/TimerBody";
-import Modal from "@/components/Modal";
+import SettingsModal from "@/components/SettingsModal";
 
 import "@/styles/App.scss";
 
@@ -59,7 +59,10 @@ const App = () => {
         <TimerHeader showSettings={() => setShowSettings(true)} />
         <TimerBody />
       </div>
-      <Modal handleClose={() => setShowSettings(false)} show={showSettings} />
+      <SettingsModal
+        handleClose={() => setShowSettings(false)}
+        show={showSettings}
+      />
     </div>
   );
 };

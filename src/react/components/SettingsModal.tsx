@@ -12,7 +12,7 @@ interface ModalProps {
   show: boolean;
 }
 
-const Modal = ({ handleClose, show }: ModalProps) => {
+const SettingsModal = ({ handleClose, show }: ModalProps) => {
   //
   const settings = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -175,4 +175,4 @@ const Modal = ({ handleClose, show }: ModalProps) => {
   );
 };
 
-export default Modal;
+export default SettingsModal;
