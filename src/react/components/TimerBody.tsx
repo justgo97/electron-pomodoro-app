@@ -42,17 +42,24 @@ const TimerBody = () => {
       clearInterval(refSessionInterval.current);
     }
 
+    window.document.title = "Pomodoro - Session [RUNNING]";
+
     refStartTime.current = Date.now();
     // Create an interval that tics every 1 second
     refSessionInterval.current = setInterval(() => {
       const currentTime = Date.now();
       const elapsedTime = currentTime - refStartTime.current;
 
-      dispatch(
-        timerActions.setTimer(
-          Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
-        )
+      const newTime = Math.max(
+        0,
+        Math.floor(refDuration.current - elapsedTime / 1000)
       );
+
+      window.document.title = `Pomodoro - Session [${getTime(
+        newTime
+      )}] [RUNNING]`;
+
+      dispatch(timerActions.setTimer(newTime));
     }, 900);
   };
 
@@ -65,8 +72,10 @@ const TimerBody = () => {
 
     if (refCurrentMode.current === "longBreak") {
       document.body.style.backgroundColor = "var(--longBreak)";
+      window.document.title = "Pomodoro - Long Break [RUNNING]";
     } else {
       document.body.style.backgroundColor = "var(--shortBreak)";
+      window.document.title = "Pomodoro - Short Break [RUNNING]";
     }
 
     if (settings.popupBreak) {
@@ -78,11 +87,22 @@ const TimerBody = () => {
       const currentTime = Date.now();
       const elapsedTime = currentTime - refStartTime.current;
 
-      dispatch(
-        timerActions.setTimer(
-          Math.max(0, Math.floor(refDuration.current - elapsedTime / 1000))
-        )
+      const newTime = Math.max(
+        0,
+        Math.floor(refDuration.current - elapsedTime / 1000)
       );
+
+      if (refCurrentMode.current === "longBreak") {
+        window.document.title = `Pomodoro - Long Break [${getTime(
+          newTime
+        )}] [RUNNING]`;
+      } else {
+        window.document.title = `Pomodoro - Short Break [${getTime(
+          newTime
+        )}] [RUNNING]`;
+      }
+
+      dispatch(timerActions.setTimer(newTime));
     }, 900);
   }
 
@@ -101,6 +121,11 @@ const TimerBody = () => {
       AudioManager.playAudio("pause");
       dispatch(timerActions.setRunning(false));
       refDuration.current = timer.secondsLeft;
+
+      window.document.title = window.document.title.replace(
+        "RUNNING",
+        "PAUSED"
+      );
     } else {
       if (!timer.isStarted) {
         dispatch(timerActions.setSessions(settings.sessionsCount));
@@ -145,6 +170,7 @@ const TimerBody = () => {
 
     // We clicked reset while paused so end the session
     if (!timer.isRunning) {
+      window.document.title = "Pomodoro - Idle...";
       refCurrentMode.current = "pomodoro";
       dispatch(timerActions.setStarted(false));
       dispatch(timerActions.setInSession(false));
@@ -287,6 +313,7 @@ const TimerBody = () => {
           dispatch(timerActions.setInLongBreak(false));
           document.body.style.backgroundColor = "var(--pomodoro)";
           refCurrentMode.current = "pomodoro";
+          window.document.title = "Pomodoro - Complete!";
           if (Notification.permission === "granted" && settings.notifications) {
             new Notification(
               "Your long break is complete, For another round start the timer again!"
