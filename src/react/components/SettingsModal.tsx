@@ -51,17 +51,32 @@ const SettingsModal = ({ handleClose, show }: ModalProps) => {
 
   const onChangeSession = (event: React.ChangeEvent<HTMLInputElement>) => {
     //
-    setStateSessionTime(Number(event.currentTarget.value));
+    let sessionsTime = Number(event.currentTarget.value);
+    if (sessionsTime < 0) {
+      sessionsTime = 0;
+    }
+
+    setStateSessionTime(sessionsTime);
   };
 
   const onChangeBreak = (event: React.ChangeEvent<HTMLInputElement>) => {
     //
-    setStateBreakTime(Number(event.currentTarget.value));
+    let breakTime = Number(event.currentTarget.value);
+    if (breakTime < 0) {
+      breakTime = 0;
+    }
+
+    setStateBreakTime(breakTime);
   };
 
   const onChangeLongBreak = (event: React.ChangeEvent<HTMLInputElement>) => {
     //
-    setStateLongBreakTime(Number(event.currentTarget.value));
+    let breakTime = Number(event.currentTarget.value);
+    if (breakTime < 0) {
+      breakTime = 0;
+    }
+
+    setStateLongBreakTime(breakTime);
   };
 
   const onChangeSound = (event: React.ChangeEvent<HTMLInputElement>) => {
