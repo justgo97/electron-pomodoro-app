@@ -40,6 +40,10 @@ const createWindow = (): void => {
   mainWindow.once("ready-to-show", () => {
     mainWindow.maximize();
     mainWindow.show();
+
+    const menu = Menu.getApplicationMenu();
+    const items = menu.items.filter((item) => item.role !== "help");
+    Menu.setApplicationMenu(Menu.buildFromTemplate(items));
   });
 
   mainWindow.on("minimize", () => {
@@ -92,10 +96,6 @@ const createTray = () => {
   tray.on("click", () => {
     mainWindow.maximize();
     mainWindow.show();
-
-    const menu = Menu.getApplicationMenu();
-    const items = menu.items.filter((item) => item.role !== "help");
-    Menu.setApplicationMenu(Menu.buildFromTemplate(items));
   });
 
   tray.on("mouse-move", () => {
