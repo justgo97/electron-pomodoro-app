@@ -48,6 +48,14 @@ body {
       }
     }
 
+    &-message {
+      display: flex;
+      align-self: center;
+      justify-content: center;
+      font-size: x-large;
+      color: #fff;
+    }
+
     &-sessions {
       display: flex;
       align-self: center;

@@ -339,6 +339,14 @@ const TimerBody = () => {
 
       <TimerDisplay time={timer.secondsLeft} isRunning={timer.isRunning} />
 
+      <div className="timer-message">
+        {timer.isRunning
+          ? timer.isInBreak || timer.isInLongBreak
+            ? "Time for a break! Rest your eyes. Stretch. Breathe. Relax 🏖️"
+            : "Time for a session! Avoid distractions and work hard 🧑‍💻️"
+          : "Idle... ⏸️"}
+      </div>
+
       <h3 className="timer-sessions">Sessions Left: {timer.sessionsLeft}</h3>
       <div className="timer-buttons">
         <button onClick={onClickToggle}>
