@@ -97,6 +97,10 @@ const createTray = () => {
     const items = menu.items.filter((item) => item.role !== "help");
     Menu.setApplicationMenu(Menu.buildFromTemplate(items));
   });
+
+  tray.on("mouse-move", () => {
+    tray.setToolTip(mainWindow.webContents.getTitle());
+  });
 };
 
 app.whenReady().then(() => {
