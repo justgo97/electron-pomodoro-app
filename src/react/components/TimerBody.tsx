@@ -5,6 +5,9 @@ import useAudio from "@/context/useAudio";
 import { timerActions } from "@/store/timerReducer";
 
 import { getTime } from "@/util/time";
+import { PomodoroMode, PomodoroStatus } from "@/util/consts";
+
+import TimerDisplay from "@/components/TimerDisplay";
 
 const TimerBody = () => {
   const AudioManager = useAudio();
@@ -14,28 +17,105 @@ const TimerBody = () => {
 
   const refSessionInterval = useRef<NodeJS.Timeout>(null);
   const refBreakInterval = useRef<NodeJS.Timeout>(null);
-  const refCurrentMode = useRef<string>("pomodoro");
+
+  const refCurrentMode = useRef<PomodoroMode>();
+
   const refStartTime = useRef(0);
   const refDuration = useRef(0);
 
   useEffect(() => {
-    if (timer.isStarted) return;
+    if (timer.currentStatus !== PomodoroStatus.idle) return;
 
     dispatch(timerActions.setTimer(settings.sessionTime));
     refDuration.current = settings.sessionTime;
-  }, [settings.sessionTime, timer.isStarted, dispatch]);
+  }, [settings.sessionTime, timer.currentStatus, dispatch]);
 
   useEffect(() => {
-    if (timer.isStarted) return;
+    if (timer.currentStatus !== PomodoroStatus.idle) return;
 
     dispatch(timerActions.setSessions(settings.sessionsCount));
-  }, [settings.sessionsCount, timer.isStarted, dispatch]);
+  }, [settings.sessionsCount, timer.currentStatus, dispatch]);
+
+  useEffect(() => {
+    //
+    if (timer.currentStatus !== PomodoroStatus.running) return;
+
+    // We are only interested in the last second
+    if (timer.secondsLeft > 0) return;
+
+    //
+    if (
+      timer.currentMode === PomodoroMode.session &&
+      refSessionInterval.current
+    ) {
+      clearInterval(refSessionInterval.current);
+      refSessionInterval.current = null;
+      //
+      dispatch(timerActions.decrementSessions());
+      AudioManager.playAudio("ring");
+
+      if (timer.sessionsLeft === 1) {
+        //
+        dispatch(timerActions.setPomodoroMode(PomodoroMode.longBreak));
+        refCurrentMode.current = PomodoroMode.longBreak;
+        dispatch(timerActions.setTimer(settings.longBreakTime));
+        refDuration.current = settings.longBreakTime;
+      } else {
+        dispatch(timerActions.setPomodoroMode(PomodoroMode.break));
+        refCurrentMode.current = PomodoroMode.break;
+        dispatch(timerActions.setTimer(settings.breakTime));
+        refDuration.current = settings.breakTime;
+      }
+
+      if (Notification.permission === "granted" && settings.notifications) {
+        new Notification("Take a break!");
+      }
+      startBreakInterval();
+    } else if (refBreakInterval.current) {
+      //
+      clearInterval(refBreakInterval.current);
+      refBreakInterval.current = null;
+
+      AudioManager.playAudio("ring");
+
+      if (
+        timer.currentMode === PomodoroMode.longBreak ||
+        timer.sessionsLeft === 0
+      ) {
+        dispatch(timerActions.setStatus(PomodoroStatus.idle));
+        dispatch(timerActions.setPomodoroMode(PomodoroMode.pending));
+        document.body.style.backgroundColor = "var(--pomodoro)";
+        refCurrentMode.current = PomodoroMode.pending;
+        window.document.title = "Pomodoro - Complete!";
+
+        if (Notification.permission === "granted" && settings.notifications) {
+          new Notification(
+            "Your long break is complete, For another round start the timer again!"
+          );
+        }
+      } else {
+        // What to do after a short break
+
+        dispatch(timerActions.setTimer(settings.sessionTime));
+        refDuration.current = settings.sessionTime;
+
+        if (Notification.permission === "granted" && settings.notifications) {
+          new Notification("Get back to work!");
+        }
+
+        startSessionInterval();
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timer.secondsLeft]);
 
   const startSessionInterval = () => {
-    dispatch(timerActions.startSession());
+    dispatch(timerActions.setStatus(PomodoroStatus.running));
+    dispatch(timerActions.setPomodoroMode(PomodoroMode.session));
 
     document.body.style.backgroundColor = "var(--pomodoro)";
-    refCurrentMode.current = "pomodoro";
+    refCurrentMode.current = PomodoroMode.session;
 
     // There is an ongoing timer running
     if (refSessionInterval.current) {
@@ -63,14 +143,14 @@ const TimerBody = () => {
     }, 900);
   };
 
-  function startBreakInterval() {
-    dispatch(timerActions.startBreak());
+  const startBreakInterval = () => {
+    dispatch(timerActions.setStatus(PomodoroStatus.running));
 
     if (refBreakInterval.current) {
       return;
     }
 
-    if (refCurrentMode.current === "longBreak") {
+    if (refCurrentMode.current === PomodoroMode.longBreak) {
       document.body.style.backgroundColor = "var(--longBreak)";
       window.document.title = "Pomodoro - Long Break [RUNNING]";
     } else {
@@ -92,7 +172,7 @@ const TimerBody = () => {
         Math.floor(refDuration.current - elapsedTime / 1000)
       );
 
-      if (refCurrentMode.current === "longBreak") {
+      if (refCurrentMode.current === PomodoroMode.longBreak) {
         window.document.title = `Pomodoro - Long Break [${getTime(
           newTime
         )}] [RUNNING]`;
@@ -104,51 +184,57 @@ const TimerBody = () => {
 
       dispatch(timerActions.setTimer(newTime));
     }, 900);
-  }
+  };
 
   const onClickToggle = () => {
-    if (timer.isRunning) {
-      if (refSessionInterval.current) {
-        clearInterval(refSessionInterval.current);
-        refSessionInterval.current = null;
-      }
-
-      if (refBreakInterval.current) {
-        clearInterval(refBreakInterval.current);
-        refBreakInterval.current = null;
-      }
-
-      AudioManager.playAudio("pause");
-      dispatch(timerActions.setRunning(false));
-      refDuration.current = timer.secondsLeft;
-
-      window.document.title = window.document.title.replace(
-        "RUNNING",
-        "PAUSED"
-      );
+    if (timer.currentStatus === PomodoroStatus.running) {
+      pauseTimer();
     } else {
-      if (!timer.isStarted) {
-        dispatch(timerActions.setSessions(settings.sessionsCount));
+      resumeTimer();
+    }
+  };
 
-        if (refCurrentMode.current === "pomodoro") {
-          dispatch(timerActions.setTimer(settings.sessionTime));
-          refDuration.current = settings.sessionTime;
-        } else if (refCurrentMode.current === "shortBreak") {
-          dispatch(timerActions.setTimer(settings.breakTime));
-          refDuration.current = settings.breakTime;
-        } else {
-          dispatch(timerActions.setTimer(settings.longBreakTime));
-          refDuration.current = settings.longBreakTime;
-        }
-      }
+  const pauseTimer = () => {
+    if (refSessionInterval.current) {
+      clearInterval(refSessionInterval.current);
+      refSessionInterval.current = null;
+    } else if (refBreakInterval.current) {
+      clearInterval(refBreakInterval.current);
+      refBreakInterval.current = null;
+    }
 
-      AudioManager.playAudio("click");
+    AudioManager.playAudio("pause");
+    dispatch(timerActions.setStatus(PomodoroStatus.paused));
+    refDuration.current = timer.secondsLeft;
 
-      if (timer.isInBreak || timer.isInLongBreak) {
-        startBreakInterval();
+    window.document.title = window.document.title.replace("RUNNING", "PAUSED");
+  };
+
+  const resumeTimer = () => {
+    if (timer.currentStatus !== PomodoroStatus.paused) {
+      dispatch(timerActions.setSessions(settings.sessionsCount));
+
+      if (refCurrentMode.current === PomodoroMode.session) {
+        dispatch(timerActions.setTimer(settings.sessionTime));
+        refDuration.current = settings.sessionTime;
+      } else if (refCurrentMode.current === PomodoroMode.break) {
+        dispatch(timerActions.setTimer(settings.breakTime));
+        refDuration.current = settings.breakTime;
       } else {
-        startSessionInterval();
+        dispatch(timerActions.setTimer(settings.longBreakTime));
+        refDuration.current = settings.longBreakTime;
       }
+    }
+
+    AudioManager.playAudio("click");
+
+    if (
+      timer.currentMode === PomodoroMode.break ||
+      timer.currentMode === PomodoroMode.longBreak
+    ) {
+      startBreakInterval();
+    } else {
+      startSessionInterval();
     }
   };
 
@@ -158,37 +244,34 @@ const TimerBody = () => {
     dispatch(timerActions.setSessions(settings.sessionsCount));
     refDuration.current = settings.sessionTime;
 
-    if (refCurrentMode.current !== "pomodoro") {
-      // we are in a break and running
+    // We clicked reset while paused so end the session
+    if (timer.currentStatus === PomodoroStatus.paused) {
+      window.document.title = "Pomodoro - Idle...";
+      refCurrentMode.current = PomodoroMode.pending;
+      dispatch(timerActions.setStatus(PomodoroStatus.idle));
+      dispatch(timerActions.setPomodoroMode(PomodoroMode.pending));
+      AudioManager.playAudio("pause");
+    } else {
+      // Clear any possible break timer
       if (refBreakInterval.current) {
         clearInterval(refBreakInterval.current);
         refBreakInterval.current = null;
       }
-      dispatch(timerActions.setInBreak(false));
-      dispatch(timerActions.setInLongBreak(false));
-    }
 
-    // We clicked reset while paused so end the session
-    if (!timer.isRunning) {
-      window.document.title = "Pomodoro - Idle...";
-      refCurrentMode.current = "pomodoro";
-      dispatch(timerActions.setStarted(false));
-      dispatch(timerActions.setInSession(false));
-      AudioManager.playAudio("pause");
-    } else {
       AudioManager.playAudio("click");
-      // Just restart the session
+
+      // Just start a session
       startSessionInterval();
     }
   };
 
   const onClickPomodoro = () => {
-    if (timer.isInSession) {
+    if (timer.currentMode === PomodoroMode.session) {
       return;
     }
 
     document.body.style.backgroundColor = "var(--pomodoro)";
-    refCurrentMode.current = "pomodoro";
+    refCurrentMode.current = PomodoroMode.session;
 
     AudioManager.playAudio("click");
 
@@ -200,23 +283,21 @@ const TimerBody = () => {
       refBreakInterval.current = null;
     }
 
-    if (timer.isRunning) {
+    if (timer.currentStatus === PomodoroStatus.running) {
       startSessionInterval();
     } else {
-      dispatch(timerActions.setInBreak(false));
-      dispatch(timerActions.setInLongBreak(false));
-      dispatch(timerActions.setInSession(true));
+      dispatch(timerActions.setPomodoroMode(PomodoroMode.session));
     }
   };
 
   const onClickBreak = () => {
     //
-    if (timer.isInBreak) {
+    if (timer.currentMode === PomodoroMode.break) {
       return;
     }
 
     document.body.style.backgroundColor = "var(--shortBreak)";
-    refCurrentMode.current = "shortBreak";
+    refCurrentMode.current = PomodoroMode.break;
 
     AudioManager.playAudio("click");
 
@@ -230,23 +311,21 @@ const TimerBody = () => {
       refBreakInterval.current = null;
     }
 
-    dispatch(timerActions.setInBreak(true));
-    dispatch(timerActions.setInLongBreak(false));
-    dispatch(timerActions.setInSession(false));
+    dispatch(timerActions.setPomodoroMode(PomodoroMode.break));
     dispatch(timerActions.setTimer(settings.breakTime));
     refDuration.current = settings.breakTime;
-    if (timer.isRunning) {
+    if (timer.currentStatus === PomodoroStatus.running) {
       startBreakInterval();
     }
   };
 
   const onClickLongBreak = () => {
-    if (timer.isInLongBreak) {
+    if (timer.currentMode === PomodoroMode.longBreak) {
       return;
     }
 
     document.body.style.backgroundColor = "var(--longBreak)";
-    refCurrentMode.current = "longBreak";
+    refCurrentMode.current = PomodoroMode.longBreak;
 
     AudioManager.playAudio("click");
 
@@ -260,78 +339,13 @@ const TimerBody = () => {
       refBreakInterval.current = null;
     }
 
-    dispatch(timerActions.setInBreak(false));
-    dispatch(timerActions.setInLongBreak(true));
-    dispatch(timerActions.setInSession(false));
+    dispatch(timerActions.setPomodoroMode(PomodoroMode.longBreak));
     dispatch(timerActions.setTimer(settings.longBreakTime));
     refDuration.current = settings.longBreakTime;
-    if (timer.isRunning) {
+    if (timer.currentStatus === PomodoroStatus.running) {
       startBreakInterval();
     }
   };
-
-  useEffect(() => {
-    //
-    if (!timer.isRunning) return;
-
-    if (timer.secondsLeft <= 0) {
-      //
-      if (timer.isInSession && refSessionInterval.current) {
-        clearInterval(refSessionInterval.current);
-        refSessionInterval.current = null;
-        //
-        dispatch(timerActions.decrementSessions());
-        AudioManager.playAudio("ring");
-
-        if (timer.sessionsLeft === 1) {
-          //
-          dispatch(timerActions.setInLongBreak(true));
-          refCurrentMode.current = "longBreak";
-          dispatch(timerActions.setTimer(settings.longBreakTime));
-          refDuration.current = settings.longBreakTime;
-        } else {
-          dispatch(timerActions.setInBreak(true));
-          refCurrentMode.current = "shortBreak";
-          dispatch(timerActions.setTimer(settings.breakTime));
-          refDuration.current = settings.breakTime;
-        }
-
-        if (Notification.permission === "granted" && settings.notifications) {
-          new Notification("Take a break!");
-        }
-        startBreakInterval();
-      } else if (refBreakInterval.current) {
-        //
-        clearInterval(refBreakInterval.current);
-        refBreakInterval.current = null;
-
-        AudioManager.playAudio("ring");
-
-        if (timer.isInLongBreak || timer.sessionsLeft === 0) {
-          dispatch(timerActions.setRunning(false));
-          dispatch(timerActions.setStarted(false));
-          dispatch(timerActions.setInLongBreak(false));
-          document.body.style.backgroundColor = "var(--pomodoro)";
-          refCurrentMode.current = "pomodoro";
-          window.document.title = "Pomodoro - Complete!";
-          if (Notification.permission === "granted" && settings.notifications) {
-            new Notification(
-              "Your long break is complete, For another round start the timer again!"
-            );
-          }
-        } else {
-          dispatch(timerActions.setInBreak(false));
-          dispatch(timerActions.setTimer(settings.sessionTime));
-          refDuration.current = settings.sessionTime;
-          if (Notification.permission === "granted" && settings.notifications) {
-            new Notification("Get back to work!");
-          }
-          startSessionInterval();
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timer.secondsLeft]);
 
   return (
     <>
@@ -339,7 +353,7 @@ const TimerBody = () => {
         <button
           onClick={onClickPomodoro}
           className={`timer-status-button${
-            !timer.isInBreak && !timer.isInLongBreak
+            timer.currentMode === PomodoroMode.session
               ? " timer-status-button-active"
               : ""
           }`}
@@ -349,7 +363,9 @@ const TimerBody = () => {
         <button
           onClick={onClickBreak}
           className={`timer-status-button${
-            timer.isInBreak ? " timer-status-button-active" : ""
+            timer.currentMode === PomodoroMode.break
+              ? " timer-status-button-active"
+              : ""
           }`}
         >
           Short break
@@ -357,18 +373,23 @@ const TimerBody = () => {
         <button
           onClick={onClickLongBreak}
           className={`timer-status-button${
-            timer.isInLongBreak ? " timer-status-button-active" : ""
+            timer.currentMode === PomodoroMode.longBreak
+              ? " timer-status-button-active"
+              : ""
           }`}
         >
           Long break
         </button>
       </div>
 
-      <TimerDisplay time={timer.secondsLeft} isRunning={timer.isRunning} />
+      <TimerDisplay
+        time={timer.secondsLeft}
+        isRunning={timer.currentStatus === PomodoroStatus.running}
+      />
 
       <div className="timer-message">
-        {timer.isRunning
-          ? timer.isInBreak || timer.isInLongBreak
+        {timer.currentStatus === PomodoroStatus.running
+          ? timer.currentMode !== PomodoroMode.session
             ? "Time for a break! Rest your eyes. Stretch. Breathe. Relax 🏖️"
             : "Time for a session! Avoid distractions and work hard 🧑‍💻️"
           : "Idle... ⏸️"}
@@ -377,30 +398,15 @@ const TimerBody = () => {
       <h3 className="timer-sessions">Sessions Left: {timer.sessionsLeft}</h3>
       <div className="timer-buttons">
         <button onClick={onClickToggle}>
-          {timer.isStarted ? (timer.isRunning ? "Pause" : "Resume") : "Start"}
+          {timer.currentStatus !== PomodoroStatus.idle
+            ? timer.currentStatus === PomodoroStatus.running
+              ? "Pause"
+              : "Resume"
+            : "Start"}
         </button>
         <button onClick={onClickReset}>Reset</button>
       </div>
     </>
-  );
-};
-
-interface TimerDisplayProps {
-  time: number;
-  isRunning: boolean;
-}
-
-const TimerDisplay = ({ time, isRunning }: TimerDisplayProps) => {
-  return (
-    <div className="timer-time">
-      <p
-        className={`timer-time-text${
-          !isRunning ? " timer-time-text-disabled" : ""
-        }`}
-      >
-        {getTime(time)}
-      </p>
-    </div>
   );
 };
 

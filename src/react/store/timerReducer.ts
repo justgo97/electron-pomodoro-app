@@ -1,22 +1,17 @@
+import { PomodoroMode, PomodoroStatus } from "@/util/consts";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ITimer {
-  isStarted: boolean;
-  isRunning: boolean;
-  isInSession: boolean;
-  isInBreak: boolean;
-  isInLongBreak: boolean;
+  currentMode: PomodoroMode;
+  currentStatus: PomodoroStatus;
 
   secondsLeft: number;
   sessionsLeft: number;
 }
 
 const initialState: ITimer = {
-  isStarted: false,
-  isRunning: false,
-  isInSession: false,
-  isInBreak: false,
-  isInLongBreak: false,
+  currentMode: PomodoroMode.pending,
+  currentStatus: PomodoroStatus.idle,
 
   secondsLeft: 0,
   sessionsLeft: 0,
@@ -26,21 +21,6 @@ export const timerSlice = createSlice({
   name: "timer",
   initialState,
   reducers: {
-    setStarted: (state, action: PayloadAction<boolean>) => {
-      state.isStarted = action.payload;
-    },
-    setRunning: (state, action: PayloadAction<boolean>) => {
-      state.isRunning = action.payload;
-    },
-    setInSession: (state, action: PayloadAction<boolean>) => {
-      state.isInSession = action.payload;
-    },
-    setInBreak: (state, action: PayloadAction<boolean>) => {
-      state.isInBreak = action.payload;
-    },
-    setInLongBreak: (state, action: PayloadAction<boolean>) => {
-      state.isInLongBreak = action.payload;
-    },
     setTimer: (state, action: PayloadAction<number>) => {
       state.secondsLeft = action.payload;
     },
@@ -53,19 +33,11 @@ export const timerSlice = createSlice({
     decrementSessions: (state) => {
       state.sessionsLeft -= 1;
     },
-    startSession: (state) => {
-      //
-      state.isStarted = true;
-      state.isRunning = true;
-      state.isInSession = true;
-      state.isInBreak = false;
-      state.isInLongBreak = false;
+    setPomodoroMode: (state, action: PayloadAction<PomodoroMode>) => {
+      state.currentMode = action.payload;
     },
-    startBreak: (state) => {
-      //
-      state.isStarted = true;
-      state.isRunning = true;
-      state.isInSession = false;
+    setStatus: (state, action: PayloadAction<PomodoroStatus>) => {
+      state.currentStatus = action.payload;
     },
   },
 });
