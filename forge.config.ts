@@ -25,7 +25,7 @@ const config: ForgeConfig = {
       setupIcon: __dirname + "/src/pomodoro.ico",
       iconUrl:
         "https://raw.githubusercontent.com/justgo97/electron-pomodoro-app/master/src/pomodoro.ico",
-      noDelta: true,
+      noDelta: false,
       remoteReleases: "https://github.com/justgo97/electron-pomodoro-app",
     }),
     new MakerZIP({}, ["darwin"]),
