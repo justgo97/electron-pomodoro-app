@@ -18,7 +18,7 @@ const TimerBody = () => {
   const refSessionInterval = useRef<NodeJS.Timeout>(null);
   const refBreakInterval = useRef<NodeJS.Timeout>(null);
 
-  const refCurrentMode = useRef<PomodoroMode>();
+  const refCurrentMode = useRef<PomodoroMode>(PomodoroMode.session);
 
   const refStartTime = useRef(0);
   const refDuration = useRef(0);
@@ -220,7 +220,7 @@ const TimerBody = () => {
       } else if (refCurrentMode.current === PomodoroMode.break) {
         dispatch(timerActions.setTimer(settings.breakTime));
         refDuration.current = settings.breakTime;
-      } else {
+      } else if (refCurrentMode.current === PomodoroMode.longBreak) {
         dispatch(timerActions.setTimer(settings.longBreakTime));
         refDuration.current = settings.longBreakTime;
       }
