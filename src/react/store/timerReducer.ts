@@ -10,7 +10,7 @@ interface ITimer {
 }
 
 const initialState: ITimer = {
-  currentMode: PomodoroMode.pending,
+  currentMode: PomodoroMode.session,
   currentStatus: PomodoroStatus.idle,
 
   secondsLeft: 0,

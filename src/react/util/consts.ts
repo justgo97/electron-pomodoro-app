@@ -1,5 +1,4 @@
 enum PomodoroMode {
-  pending,
   session,
   break,
   longBreak,

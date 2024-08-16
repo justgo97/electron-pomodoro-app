@@ -83,9 +83,9 @@ const TimerBody = () => {
         timer.sessionsLeft === 0
       ) {
         dispatch(timerActions.setStatus(PomodoroStatus.idle));
-        dispatch(timerActions.setPomodoroMode(PomodoroMode.pending));
+        dispatch(timerActions.setPomodoroMode(PomodoroMode.session));
         document.body.style.backgroundColor = "var(--pomodoro)";
-        refCurrentMode.current = PomodoroMode.pending;
+        refCurrentMode.current = PomodoroMode.session;
         window.document.title = "Pomodoro - Complete!";
 
         if (Notification.permission === "granted" && settings.notifications) {
@@ -244,12 +244,14 @@ const TimerBody = () => {
     dispatch(timerActions.setSessions(settings.sessionsCount));
     refDuration.current = settings.sessionTime;
 
+    document.body.style.backgroundColor = "var(--pomodoro)";
+    refCurrentMode.current = PomodoroMode.session;
+    dispatch(timerActions.setPomodoroMode(PomodoroMode.session));
+
     // We clicked reset while paused so end the session
     if (timer.currentStatus === PomodoroStatus.paused) {
       window.document.title = "Pomodoro - Idle...";
-      refCurrentMode.current = PomodoroMode.pending;
       dispatch(timerActions.setStatus(PomodoroStatus.idle));
-      dispatch(timerActions.setPomodoroMode(PomodoroMode.pending));
       AudioManager.playAudio("pause");
     } else {
       // Clear any possible break timer
@@ -261,7 +263,9 @@ const TimerBody = () => {
       AudioManager.playAudio("click");
 
       // Just start a session
-      startSessionInterval();
+      if (timer.currentStatus === PomodoroStatus.running) {
+        startSessionInterval();
+      }
     }
   };
 
