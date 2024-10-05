@@ -21,6 +21,7 @@
     "lint": "eslint --ext .ts,.tsx ."
   },
   "devDependencies": {
+    "@blueprintjs/core": "^5.10.3",
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/maker-deb": "^7.4.0",
     "@electron-forge/maker-rpm": "^7.4.0",
@@ -31,30 +32,28 @@
     "@electron-forge/plugin-vite": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
+    "@reduxjs/toolkit": "^2.0.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "31.1.0",
+    "electron-inline-updater": "^0.0.6",
+    "electron-squirrel-startup": "^1.0.1",
     "eslint": "^8.57.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.1.0",
     "sass": "^1.69.7",
     "ts-node": "^10.9.2",
     "typescript": "~4.5.4",
     "vite": "^5.3.3",
-    "vite-plugin-require": "^1.2.14",
-    "@blueprintjs/core": "^5.10.3",
-    "@reduxjs/toolkit": "^2.0.1",
-    "electron-squirrel-startup": "^1.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-redux": "^9.1.0",
-    "update-electron-app": "^3.0.0"
+    "vite-plugin-require": "^1.2.14"
   },
   "keywords": [],
   "author": "hamdi",
-  "license": "MIT",
-  "dependencies": {}
+  "license": "MIT"
 }
