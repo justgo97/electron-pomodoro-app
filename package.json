@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "31.1.0",
-    "electron-inline-updater": "^0.0.6",
+    "electron-inline-updater": "^0.0.7",
     "electron-squirrel-startup": "^1.0.1",
     "eslint": "^8.57.0",
     "eslint-import-resolver-alias": "^1.1.2",
